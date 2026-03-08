@@ -1,0 +1,36 @@
+categories:
+  - name: "Örnek Ana Kategori"
+    items:
+      - name: "Örnek Alt Kategori"
+        url: "#"
+        subitems:
+          - name: "Mock Deneme Yazısı"
+            url: "/mock-topic/mock-post"
+          - name: "İlk Blog Yazısı"
+            url: "/mock-topic/ilk-yazim"
+  - name: "Yapay Zeka Güvenliği"
+    name_en: "AI Security"
+    url: "/ai-security"
+    items:
+      - name_en: "HealthGPT Write-Up"
+        url: "/ai-security/healthgpt-en"
+  - name: "CTF"
+    url: "/ctf"
+    items:
+      - name: "THM"
+        url: "#"
+        subitems:
+          - name: "CTF Write-Up"
+            url: "/ctf/ctf-write-up"
+      - name: "HTB"
+        url: "#"
+
+  - name: "Siber Güvenlik"
+    name_en: "Cyber Security"
+    items:
+      - name: "Zafiyet Taraması"
+        name_en: "Vulnerability Scanning"
+        url: "/ai-security/healthgpt" # Türkçe
+      - name: "Vulnerability Scanning"
+        url: "/ai-security/healthgpt-en" # İngilizce
+

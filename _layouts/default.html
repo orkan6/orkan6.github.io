@@ -1,0 +1,847 @@
+---
+---
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>
+    {% if page.title %}
+    {{ page.title }} · {{ site.title }}
+    {% else %}
+    {{ site.title }}
+    {% endif %}
+  </title>
+  <!-- Favicon - Skull Icon -->
+  <link rel="icon" type="image/png" sizes="32x32" href="{{ '/assets/icons/icon-1-1-1.png' | relative_url }}">
+  <link rel="icon" type="image/png" sizes="16x16" href="{{ '/assets/icons/icon-1-1-1.png' | relative_url }}">
+  <link rel="shortcut icon" href="{{ '/assets/icons/icon-1-1-1.png' | relative_url }}">
+  <meta name="description" content="{{ page.excerpt | default: site.description | strip_html | strip_newlines }}">
+
+  <!-- PWA Meta Tags -->
+  <link rel="manifest" href="{{ '/manifest.json' | relative_url }}">
+  <meta name="theme-color" content="#000000">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Blog">
+  <link rel="apple-touch-icon" href="{{ '/assets/icons/icon-1-1-1.png' | relative_url }}">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="application-name" content="Blog">
+
+  <!-- Theme bootstrap: enforce dark mode permanently -->
+  <script>
+    (function () {
+      document.documentElement.classList.add('dark');
+      document.documentElement.classList.add('kb-dark-mode');
+    })();
+  </script>
+
+  <!-- Tailwind CSS (CDN, with Typography plugin) -->
+  <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+          },
+          typography: (theme) => ({
+            invert: {
+              css: {
+                '--tw-prose-body': theme('colors.zinc[300]'),
+                '--tw-prose-headings': theme('colors.white'),
+                '--tw-prose-links': theme('colors.blue[400]'),
+                '--tw-prose-bold': theme('colors.white'),
+              },
+            },
+          }),
+        },
+      },
+    };
+  </script>
+
+  <!-- KaTeX (LaTeX rendering) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css" crossorigin="anonymous">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js" crossorigin="anonymous"
+    onload="renderMathInElement(document.body,{
+            delimiters:[
+              {left:'$$', right:'$$', display:true},
+              {left:'$', right:'$', display:false},
+              {left:'\\(', right:'\\)', display:false},
+              {left:'\\[', right:'\\]', display:true}
+            ],
+            throwOnError:false
+          });"></script>
+
+  <!-- Prism.js (syntax highlighting) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+  <script defer
+    src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+
+  <!-- Mermaid.js (diagrams) -->
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'dark',
+      themeVariables: {
+        primaryColor: '#1a1a2e',
+        primaryTextColor: '#fff',
+        primaryBorderColor: '#e94560',
+        lineColor: '#e94560',
+        secondaryColor: '#16213e',
+        tertiaryColor: '#0f3460'
+      }
+    });
+  </script>
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="{{ '/assets/style.css' | relative_url }}?v={{ site.time | date: '%s' }}">
+
+</head>
+
+<body class="antialiased" data-page-url="{{ page.url }}" data-topic="{{ page.topic }}">
+
+  <div class="flex h-screen overflow-hidden">
+
+    <!-- Left Sidebar (Navigation) -->
+    <aside id="desktop-sidebar"
+      class="hidden md:flex w-64 flex-shrink-0 kb-sidebar flex-col transition-all duration-300">
+      <div class="p-4 border-b border-dashed border-[var(--kb-border)] flex items-center justify-center">
+        <div class="text-center">
+          <a href="{{ '/' | relative_url }}" class="block font-bold kb-main-title"
+            style="font-size: 1.1rem; letter-spacing: 0.1em;">
+            {{ site.title }}
+          </a>
+          {% if site.tagline %}
+          <p class="text-xs uppercase tracking-widest mt-2" style="font-family: 'Courier Prime', monospace;">{{
+            site.tagline }}</p>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Navigation from _data/navigation.yml -->
+      <nav class="flex-1 overflow-y-auto p-6 space-y-2">
+        {% assign is_page_en = false %}
+        {% if page.lang == 'en' or page.url contains '-en' %}{% assign is_page_en = true %}{% endif %}
+
+        {% for category in site.data.navigation.categories %}
+        <div class="kb-nav-section-wrap">
+          <!-- Collapsible Category Header -->
+          <button type="button" class="kb-nav-category-btn" onclick="toggleCategory(this, event)"
+            data-category="{{ category.name | slugify }}">
+            <span class="kb-nav-category-name">{% if is_page_en and category.name_en %}{{ category.name_en }}{% else
+              %}{{ category.name }}{% endif %}</span>
+            <svg class="kb-nav-category-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none">
+              <path d="M4 2L8 6L4 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                stroke-linejoin="round" />
+            </svg>
+          </button>
+          <!-- Category Items (hidden by default) -->
+          <ul class="kb-nav-category-items" style="display: none;">
+            {% for item in category.items %}
+            {% assign show_item = true %}
+            {% assign item_is_en = false %}
+            {% if item.url and item.url != "#" %}
+            {% if item.url contains "-en" or item.lang == "en" %}{% assign item_is_en = true %}{% endif %}
+            {% if item.lang == "all" %}{% assign show_item = true %}
+            {% elsif item_is_en != is_page_en %}{% assign show_item = false %}{% endif %}
+            {% endif %}
+
+            {% if show_item %}
+            <li>
+              {% if item.subitems %}
+              <!-- Nested collapsible -->
+              <button type="button" class="kb-nav-section w-full text-left" onclick="toggleSubnav(this, event)">
+                <span>{% if is_page_en and item.name_en %}{{ item.name_en }}{% else %}{{ item.name }}{% endif %}</span>
+                <svg class="subnav-arrow w-4 h-4 transition-transform" fill="none" stroke="currentColor"
+                  viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
+              </button>
+              <ul class="subnav-items hidden pl-4 mt-1 space-y-1 border-l-2 border-dashed border-[var(--kb-border)]">
+                {% for subitem in item.subitems %}
+                {% assign show_sub = true %}
+                {% assign sub_is_en = false %}
+                {% if subitem.url and subitem.url != "#" %}
+                {% if subitem.url contains "-en" or subitem.lang == "en" %}{% assign sub_is_en = true %}{% endif %}
+                {% if subitem.lang == "all" %}{% assign show_sub = true %}
+                {% elsif sub_is_en != is_page_en %}{% assign show_sub = false %}{% endif %}
+                {% endif %}
+                {% if show_sub %}
+                <li>
+                  <a href="{{ subitem.url | relative_url }}" class="kb-nav-sublink
+                    {% if page.url == subitem.url %}kb-nav-link-active{% endif %}">
+                    {% if is_page_en and subitem.name_en %}{{ subitem.name_en }}{% else %}{{ subitem.name }}{% endif %}
+                  </a>
+                </li>
+                {% endif %}
+                {% endfor %}
+              </ul>
+              {% else %}
+              <!-- Regular link -->
+              <a href="{{ item.url | relative_url }}" class="kb-nav-link
+                {% if page.url == item.url %}kb-nav-link-active{% endif %}">
+                {% if is_page_en and item.name_en %}{{ item.name_en }}{% else %}{{ item.name }}{% endif %}
+              </a>
+              {% endif %}
+            </li>
+            {% endif %}
+            {% endfor %}
+          </ul>
+        </div>
+        {% endfor %}
+      </nav>
+
+      <div
+        class="p-4 border-t border-dashed border-[var(--kb-border)] text-xs text-center uppercase tracking-widest opacity-60">
+        <p>Est. {{ site.time | date: '%Y' }} · Archive</p>
+      </div>
+    </aside>
+
+    <!-- Main column -->
+    <main class="flex-1 flex flex-col overflow-hidden bg-[var(--kb-bg)]">
+
+      <!-- Top bar -->
+      <header class="flex items-center justify-between px-3 md:px-8 h-14 md:h-16 kb-top-bar">
+        <!-- Left side: menu + title -->
+        <div class="flex items-center space-x-2 md:space-x-4 flex-1 min-w-0">
+          <!-- Desktop: sidebar toggle button -->
+          <button
+            class="hidden md:inline-flex items-center justify-center rounded-md p-2 hover:bg-[var(--kb-border)] transition"
+            id="desktop-sidebar-toggle" title="Menüyü Aç/Kapat">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m0 6H4"></path>
+            </svg>
+          </button>
+          <!-- Mobile: menu button -->
+          <button
+            class="md:hidden inline-flex items-center justify-center rounded-md p-2 hover:bg-[var(--kb-border)] transition flex-shrink-0"
+            id="mobile-nav-toggle">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m0 6H4"></path>
+            </svg>
+          </button>
+
+          <!-- Title section -->
+          <div class="flex flex-col leading-tight min-w-0 title-section">
+            <span class="text-[10px] md:text-xs font-bold uppercase tracking-widest text-[var(--kb-accent)]"
+              style="font-family: 'Courier Prime', monospace;">
+              {{ page.topic | upcase | default: "FILE NO." }}
+            </span>
+            <span class="text-xs md:text-base font-bold truncate page-title"
+              style="font-family: 'Cormorant Garamond', serif;">
+              {{ page.title | default: site.title }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Right side: buttons -->
+        <div class="flex items-center gap-2 md:gap-3 buttons-container flex-shrink-0">
+
+          <!-- Language Dropdown -->
+          <div class="relative" id="lang-dropdown-container">
+            <button id="lang-current" class="lang-toggle-btn flex items-center gap-1"
+              style="font-family: 'Courier Prime', monospace;" title="Dili Değiştir / Change Language">
+              <span id="lang-flag" class="text-sm">🇹🇷</span>
+              <span class="hidden md:inline font-bold" id="lang-text" style="font-size: 0.8rem;">TR</span>
+              <svg class="w-3 h-3 ml-1 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+              </svg>
+            </button>
+            <ul
+              class="absolute right-0 mt-2 w-32 bg-[#101014] border border-[var(--kb-border)] rounded-md shadow-lg hidden z-50 py-1"
+              id="lang-menu">
+              <li><a href="#" data-lang="tr"
+                  class="block px-4 py-2 text-sm text-[var(--kb-text-primary)] hover:bg-[var(--kb-border)] transition"
+                  style="font-family: 'Courier Prime', monospace;">🇹🇷 Türkçe</a></li>
+              <li><a href="#" data-lang="en"
+                  class="block px-4 py-2 text-sm text-[var(--kb-text-primary)] hover:bg-[var(--kb-border)] transition"
+                  style="font-family: 'Courier Prime', monospace;">🇺🇸 English</a></li>
+            </ul>
+          </div>
+
+        </div>
+      </header>
+
+      <!-- Mobile sidebar (drawer) -->
+      <div id="mobile-sidebar"
+        class="md:hidden fixed inset-y-0 left-0 w-72 kb-sidebar z-40 transform -translate-x-full transition-transform duration-200">
+        <div class="p-4 border-b border-dashed border-[var(--kb-border)] flex items-center justify-between">
+          <div>
+            <a href="{{ '/' | relative_url }}" class="block text-xl font-bold kb-main-title" style="font-size: 1.5rem;">
+              {{ site.title }}
+            </a>
+          </div>
+          <button class="inline-flex items-center justify-center p-2 hover:bg-[var(--kb-border)]" id="mobile-nav-close">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
+        </div>
+        <div class="p-4 space-y-2 overflow-y-auto h-[calc(100%-3.5rem)]">
+          {% assign is_page_en = false %}
+          {% if page.lang == 'en' or page.url contains '-en' %}{% assign is_page_en = true %}{% endif %}
+
+          {% for category in site.data.navigation.categories %}
+          <div class="kb-nav-section-wrap">
+            <!-- Collapsible Category Header - Mobile -->
+            <button type="button" class="kb-nav-category-btn" onclick="toggleCategory(this, event)"
+              data-category="{{ category.name | slugify }}-mobile">
+              <span class="kb-nav-category-name">{% if is_page_en and category.name_en %}{{ category.name_en }}{% else
+                %}{{ category.name }}{% endif %}</span>
+              <svg class="kb-nav-category-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none">
+                <path d="M4 2L8 6L4 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                  stroke-linejoin="round" />
+              </svg>
+            </button>
+            <!-- Category Items (hidden by default) -->
+            <ul class="kb-nav-category-items" style="display: none;">
+              {% for item in category.items %}
+              {% assign show_item = true %}
+              {% assign item_is_en = false %}
+              {% if item.url and item.url != "#" %}
+              {% if item.url contains "-en" or item.lang == "en" %}{% assign item_is_en = true %}{% endif %}
+              {% if item.lang == "all" %}{% assign show_item = true %}
+              {% elsif item_is_en != is_page_en %}{% assign show_item = false %}{% endif %}
+              {% endif %}
+
+              {% if show_item %}
+              <li>
+                {% if item.subitems %}
+                <!-- Nested collapsible for mobile -->
+                <button type="button" class="kb-nav-section w-full text-left" onclick="toggleSubnav(this, event)">
+                  <span>{% if is_page_en and item.name_en %}{{ item.name_en }}{% else %}{{ item.name }}{% endif
+                    %}</span>
+                  <svg class="subnav-arrow w-4 h-4 transition-transform" fill="none" stroke="currentColor"
+                    viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                  </svg>
+                </button>
+                <ul class="subnav-items hidden pl-4 mt-1 space-y-1 border-l border-dashed border-[var(--kb-border)]">
+                  {% for subitem in item.subitems %}
+                  {% assign show_sub = true %}
+                  {% assign sub_is_en = false %}
+                  {% if subitem.url and subitem.url != "#" %}
+                  {% if subitem.url contains "-en" or subitem.lang == "en" %}{% assign sub_is_en = true %}{% endif %}
+                  {% if subitem.lang == "all" %}{% assign show_sub = true %}
+                  {% elsif sub_is_en != is_page_en %}{% assign show_sub = false %}{% endif %}
+                  {% endif %}
+                  {% if show_sub %}
+                  <li>
+                    <a href="{{ subitem.url | relative_url }}" class="kb-nav-sublink
+                      {% if page.url == subitem.url %}kb-nav-link-active{% endif %}">
+                      {% if is_page_en and subitem.name_en %}{{ subitem.name_en }}{% else %}{{ subitem.name }}{% endif
+                      %}
+                    </a>
+                  </li>
+                  {% endif %}
+                  {% endfor %}
+                </ul>
+                {% else %}
+                <!-- Regular link -->
+                <a href="{{ item.url | relative_url }}" class="kb-nav-link
+                  {% if page.url == item.url %}kb-nav-link-active{% endif %}">
+                  {% if is_page_en and item.name_en %}{{ item.name_en }}{% else %}{{ item.name }}{% endif %}
+                </a>
+                {% endif %}
+              </li>
+              {% endif %}
+              {% endfor %}
+            </ul>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Overlay behind mobile sidebar -->
+      <div id="mobile-backdrop"
+        class="md:hidden fixed inset-0 bg-black/40 z-30 opacity-0 pointer-events-none transition-opacity"></div>
+
+      <!-- Article content -->
+      <section class="flex-1 overflow-y-auto bg-[var(--kb-bg)]">
+        <div class="px-4 md:px-8 py-6 md:py-10">
+          <div class="max-w-6xl mx-auto">
+            <article class="kb-prose">
+              {{ content }}
+            </article>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+
+
+  </div>
+
+  <!-- Scroll Progress Indicator -->
+  <div class="scroll-progress" id="scroll-progress"></div>
+
+  <!-- Binary Rain Background -->
+  <div class="binary-rain" id="binary-rain"></div>
+
+  <script>
+    // ============================================
+    // Binary Rain Animation (Matrix Style)
+    // ============================================
+    function createBinaryRain() {
+      const container = document.getElementById('binary-rain');
+      if (!container) return;
+
+      // Clear existing columns
+      container.innerHTML = '';
+
+      const columns = Math.floor(window.innerWidth / 25);
+
+      for (let i = 0; i < columns; i++) {
+        const column = document.createElement('div');
+        column.className = 'binary-column';
+        column.style.left = (i * 25) + 'px';
+        column.style.animationDuration = (Math.random() * 15 + 10) + 's';
+        column.style.animationDelay = (Math.random() * 8) + 's';
+        column.style.animationName = 'binaryFall';
+
+        // Generate random binary/hex string
+        let content = '';
+        const length = Math.floor(Math.random() * 30 + 20);
+        for (let j = 0; j < length; j++) {
+          // Mix of 0, 1, and occasional hex
+          const rand = Math.random();
+          if (rand > 0.85) {
+            content += ['A', 'B', 'C', 'D', 'E', 'F'][Math.floor(Math.random() * 6)];
+          } else {
+            content += Math.random() > 0.5 ? '1' : '0';
+          }
+        }
+        column.textContent = content;
+
+        container.appendChild(column);
+      }
+    }
+
+    // Initialize binary rain on load
+    document.addEventListener('DOMContentLoaded', createBinaryRain);
+
+    // Recreate on window resize
+    let resizeTimeout;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(createBinaryRain, 300);
+    });
+
+    // ============================================
+    // Scroll Progress Indicator
+    // ============================================
+    function updateScrollProgress() {
+      const scrollProgress = document.getElementById('scroll-progress');
+      if (!scrollProgress) return;
+
+      const scrollTop = window.scrollY;
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      const scrollPercent = (scrollTop / docHeight) * 100;
+
+      scrollProgress.style.width = Math.min(scrollPercent, 100) + '%';
+    }
+
+    window.addEventListener('scroll', updateScrollProgress);
+
+    // ============================================
+    // Tab Switching (Education & Certifications)
+    // ============================================
+    function switchTab(tabId, button) {
+      // Get parent container
+      const parent = button.closest('.kb-tabs').parentElement;
+
+      // Hide all tab contents in this container
+      parent.querySelectorAll('.kb-tab-content').forEach(content => {
+        content.classList.remove('active');
+      });
+
+      // Deactivate all tabs
+      parent.querySelectorAll('.kb-tab').forEach(tab => {
+        tab.classList.remove('active');
+      });
+
+      // Show selected tab content
+      document.getElementById('tab-' + tabId).classList.add('active');
+
+      // Activate clicked tab
+      button.classList.add('active');
+    }
+
+    // ============================================
+    // Collapsible Navigation
+    // ============================================
+    function toggleSubnav(button, event) {
+      // Prevent default behavior and stop propagation
+      if (event) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+
+      const subnav = button.nextElementSibling;
+      if (!subnav) return;
+
+      const isOpen = subnav.classList.contains('show');
+
+      // Close all open subnavs
+      document.querySelectorAll('.subnav-items.show').forEach(item => {
+        item.classList.remove('show');
+        item.classList.add('hidden');
+      });
+      document.querySelectorAll('.kb-nav-section.active').forEach(btn => {
+        btn.classList.remove('active');
+      });
+
+      // Toggle current
+      if (!isOpen) {
+        subnav.classList.remove('hidden');
+        subnav.classList.add('show');
+        button.classList.add('active');
+      }
+    }
+
+    // Auto-expand section if current page is in subitems
+    document.addEventListener('DOMContentLoaded', () => {
+      const activeSublink = document.querySelector('.kb-nav-sublink.kb-nav-link-active');
+      if (activeSublink) {
+        const subnav = activeSublink.closest('.subnav-items');
+        const button = subnav?.previousElementSibling;
+        if (subnav && button) {
+          subnav.classList.remove('hidden');
+          subnav.classList.add('show');
+          button.classList.add('active');
+        }
+      }
+    });
+
+    // ============================================
+    // Collapsible Category Navigation
+    // ============================================
+    function toggleCategory(button, event) {
+      if (event) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+
+      const categoryItems = button.nextElementSibling;
+      if (!categoryItems) return;
+
+      const isOpen = categoryItems.style.display === 'block';
+
+      if (isOpen) {
+        categoryItems.style.display = 'none';
+        button.classList.remove('active');
+      } else {
+        categoryItems.style.display = 'block';
+        button.classList.add('active');
+      }
+    }
+
+    // Auto-expand category if current page is in it
+    document.addEventListener('DOMContentLoaded', () => {
+      const activeLink = document.querySelector('.kb-nav-link.kb-nav-link-active, .kb-nav-sublink.kb-nav-link-active');
+      if (activeLink) {
+        const categoryItems = activeLink.closest('.kb-nav-category-items');
+        const categoryBtn = categoryItems?.previousElementSibling;
+        if (categoryItems && categoryBtn) {
+          categoryItems.style.display = 'block';
+          categoryBtn.classList.add('active');
+        }
+      }
+    });
+
+
+
+    // ============================================
+    // Language Dropdown
+    // ============================================
+    const langContainer = document.getElementById('lang-dropdown-container');
+    const langCurrent = document.getElementById('lang-current');
+    const langMenu = document.getElementById('lang-menu');
+
+    if (langContainer && langMenu) {
+      // Toggle menu
+      langCurrent.addEventListener('click', (e) => {
+        e.preventDefault();
+        langMenu.classList.toggle('hidden');
+      });
+
+      // Close when clicking outside
+      document.addEventListener('click', (e) => {
+        if (!langContainer.contains(e.target)) {
+          langMenu.classList.add('hidden');
+        }
+      });
+
+      // Determine current lang
+      const currentPath = window.location.pathname;
+
+      function getLangFromPath(path) {
+        if (path.includes('-en.html') || path.endsWith('-en/') || path.endsWith('-en') || path.includes('/articles/home-en')) return 'en';
+        // Gelecekte eklenecek diller buraya eklenebilir:
+        // if (path.includes('-de.html') || ... ) return 'de';
+        return 'tr';
+      }
+
+      const currentLang = getLangFromPath(currentPath);
+
+      // Update Current label
+      const flagEl = document.getElementById('lang-flag');
+      const textEl = document.getElementById('lang-text');
+
+      if (currentLang === 'en') {
+        if (flagEl) flagEl.textContent = '🇺🇸';
+        if (textEl) textEl.textContent = 'EN';
+      } else {
+        if (flagEl) flagEl.textContent = '🇹🇷';
+        if (textEl) textEl.textContent = 'TR';
+      }
+
+      // Handle Selection
+      const langOptions = langMenu.querySelectorAll('a[data-lang]');
+      langOptions.forEach(opt => {
+        opt.addEventListener('click', async (e) => {
+          e.preventDefault();
+          const targetLang = opt.getAttribute('data-lang');
+          if (targetLang === currentLang) {
+            langMenu.classList.add('hidden');
+            return; // already on this lang
+          }
+
+          let targetPath = currentPath;
+
+          // 1. Remove current lang suffix if not 'tr'
+          if (currentLang !== 'tr') {
+            if (currentPath === `/articles/home-${currentLang}.html` || currentPath === `/articles/home-${currentLang}`) {
+              targetPath = '/';
+            } else if (currentPath.endsWith(`-${currentLang}.html`)) {
+              targetPath = currentPath.replace(`-${currentLang}.html`, '.html');
+            } else if (currentPath.endsWith(`-${currentLang}/`)) {
+              targetPath = currentPath.replace(`-${currentLang}/`, '/');
+            } else if (currentPath.endsWith(`-${currentLang}`)) {
+              targetPath = currentPath.replace(`-${currentLang}`, '');
+            }
+          }
+
+          // 2. Add new lang suffix if target is not 'tr'
+          if (targetLang !== 'tr') {
+            if (targetPath === '/' || targetPath === '/index.html' || targetPath === '/articles/home.html') {
+              targetPath = `/articles/home-${targetLang}.html`;
+            } else if (targetPath.endsWith('.html')) {
+              targetPath = targetPath.replace('.html', `-${targetLang}.html`);
+            } else if (targetPath.endsWith('/')) {
+              targetPath = targetPath.substring(0, targetPath.length - 1) + `-${targetLang}/`;
+            } else {
+              targetPath = targetPath + `-${targetLang}`;
+            }
+          }
+
+          try {
+            // Check if the target page exists before redirecting
+            const response = await fetch(targetPath, { method: 'HEAD' });
+            if (response.ok) {
+              window.location.href = targetPath;
+            } else {
+              if (targetLang === 'en') alert("Translation for this page is not available yet.");
+              else alert("Bu sayfanın bu dildeki versiyonu henüz bulunmamaktadır.");
+            }
+          } catch (error) {
+            console.error("Translation check failed", error);
+            window.location.href = targetPath;
+          }
+        });
+      });
+    }
+
+    // ============================================
+    // Favorites System (localStorage)
+    // ============================================
+    const FAVORITES_KEY = 'kb_favorites';
+    const favoriteBtn = document.getElementById('favorite-toggle');
+    const pageUrl = document.body.dataset.pageUrl || window.location.pathname;
+    const pageTitle = document.querySelector('.page-title')?.textContent || document.title;
+
+    function getFavorites() {
+      try {
+        return JSON.parse(localStorage.getItem(FAVORITES_KEY)) || [];
+      } catch {
+        return [];
+      }
+    }
+
+    function saveFavorites(favorites) {
+      localStorage.setItem(FAVORITES_KEY, JSON.stringify(favorites));
+    }
+
+    function isFavorited(url) {
+      return getFavorites().some(f => f.url === url);
+    }
+
+    function toggleFavorite() {
+      const favorites = getFavorites();
+      const index = favorites.findIndex(f => f.url === pageUrl);
+
+      if (index > -1) {
+        // Remove from favorites
+        favorites.splice(index, 1);
+        updateFavoriteUI(false);
+      } else {
+        // Add to favorites
+        favorites.push({
+          url: pageUrl,
+          title: pageTitle.trim(),
+          date: new Date().toISOString()
+        });
+        updateFavoriteUI(true);
+      }
+
+      saveFavorites(favorites);
+    }
+
+    function updateFavoriteUI(isFav) {
+      if (!favoriteBtn) return;
+      const icon = favoriteBtn.querySelector('.favorite-icon');
+      const text = favoriteBtn.querySelector('.favorite-text');
+
+      if (isFav) {
+        icon.textContent = '★';
+        if (text) text.textContent = 'Favorilerde';
+        favoriteBtn.classList.add('is-favorited');
+        favoriteBtn.title = 'Favorilerden Çıkar';
+      } else {
+        icon.textContent = '☆';
+        if (text) text.textContent = 'Favori';
+        favoriteBtn.classList.remove('is-favorited');
+        favoriteBtn.title = 'Favorilere Ekle';
+      }
+    }
+
+    // Initialize favorites
+    if (favoriteBtn) {
+      updateFavoriteUI(isFavorited(pageUrl));
+      favoriteBtn.addEventListener('click', toggleFavorite);
+    }
+
+    // Desktop sidebar toggle
+    const desktopSidebarToggle = document.getElementById('desktop-sidebar-toggle');
+    const desktopSidebar = document.getElementById('desktop-sidebar');
+
+    function initDesktopSidebar() {
+      const sidebarHidden = localStorage.getItem('sidebarHidden') === 'true';
+      if (sidebarHidden && desktopSidebar) {
+        desktopSidebar.classList.add('md:hidden');
+        desktopSidebar.classList.remove('md:flex');
+      }
+    }
+
+    function toggleDesktopSidebar() {
+      if (!desktopSidebar) return;
+      const isHidden = desktopSidebar.classList.contains('md:hidden');
+      if (isHidden) {
+        desktopSidebar.classList.remove('md:hidden');
+        desktopSidebar.classList.add('md:flex');
+        localStorage.setItem('sidebarHidden', 'false');
+      } else {
+        desktopSidebar.classList.add('md:hidden');
+        desktopSidebar.classList.remove('md:flex');
+        localStorage.setItem('sidebarHidden', 'true');
+      }
+    }
+
+    if (desktopSidebarToggle) desktopSidebarToggle.addEventListener('click', toggleDesktopSidebar);
+    initDesktopSidebar();
+
+    // Mobile sidebar handlers
+    const mobileToggle = document.getElementById('mobile-nav-toggle');
+    const mobileClose = document.getElementById('mobile-nav-close');
+    const mobileSidebar = document.getElementById('mobile-sidebar');
+    const mobileBackdrop = document.getElementById('mobile-backdrop');
+
+    function openMobileNav() {
+      if (!mobileSidebar || !mobileBackdrop) return;
+      mobileSidebar.classList.remove('-translate-x-full');
+      mobileSidebar.classList.add('translate-x-0');
+      mobileBackdrop.classList.remove('pointer-events-none');
+      mobileBackdrop.classList.add('opacity-100');
+    }
+
+    function closeMobileNav() {
+      if (!mobileSidebar || !mobileBackdrop) return;
+      mobileSidebar.classList.add('-translate-x-full');
+      mobileSidebar.classList.remove('translate-x-0');
+      mobileBackdrop.classList.add('pointer-events-none');
+      mobileBackdrop.classList.remove('opacity-100');
+    }
+
+    if (mobileToggle) mobileToggle.addEventListener('click', openMobileNav);
+    if (mobileClose) mobileClose.addEventListener('click', closeMobileNav);
+    if (mobileBackdrop) mobileBackdrop.addEventListener('click', closeMobileNav);
+
+    document.addEventListener('DOMContentLoaded', () => {
+      if (window.Prism) {
+        Prism.highlightAll();
+      }
+
+      // Remove backticks from inline code elements
+      setTimeout(() => {
+        const inlineCodes = document.querySelectorAll('.kb-prose code:not(pre code)');
+        inlineCodes.forEach(code => {
+          if (code.textContent && (code.textContent.startsWith('`') || code.textContent.endsWith('`'))) {
+            code.textContent = code.textContent.replace(/^`+|`+$/g, '');
+          }
+        });
+      }, 100);
+
+      // Add copy button to all code blocks
+      document.querySelectorAll('.kb-prose pre').forEach(pre => {
+        // Create wrapper div
+        const wrapper = document.createElement('div');
+        wrapper.style.position = 'relative';
+        pre.parentNode.insertBefore(wrapper, pre);
+        wrapper.appendChild(pre);
+
+        // Create copy button
+        const copyBtn = document.createElement('button');
+        copyBtn.className = 'kb-copy-btn';
+        copyBtn.innerHTML = 'Kopyala';
+        copyBtn.setAttribute('title', 'Kodu kopyala');
+        wrapper.appendChild(copyBtn);
+
+        // Copy functionality
+        copyBtn.addEventListener('click', async () => {
+          const code = pre.querySelector('code');
+          const text = code ? code.innerText : pre.innerText;
+
+          try {
+            await navigator.clipboard.writeText(text);
+            copyBtn.innerHTML = 'Kopyalandı!';
+            copyBtn.classList.add('kb-copy-success');
+            setTimeout(() => {
+              copyBtn.innerHTML = 'Kopyala';
+              copyBtn.classList.remove('kb-copy-success');
+            }, 2000);
+          } catch (err) {
+            copyBtn.innerHTML = 'Hata!';
+            setTimeout(() => {
+              copyBtn.innerHTML = 'Kopyala';
+            }, 2000);
+          }
+        });
+      });
+    });
+  </script>
+
+  <!-- GoatCounter Analytics -->
+  <script data-goatcounter="https://orkan.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+</body>
+
+</html>

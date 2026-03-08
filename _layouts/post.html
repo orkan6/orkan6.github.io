@@ -1,0 +1,154 @@
+---
+layout: default
+---
+
+
+<!-- arXiv-style academic paper header -->
+<header class="kb-paper-header">
+  <!-- Paper metadata -->
+  <div class="kb-paper-meta">
+    {% if page.topic %}
+    {% assign t = site.data.topics.topics | where: "id", page.topic | first %}
+    {% if t %}
+    <span class="kb-topic-name">{{ t.name }}</span>
+    {% endif %}
+    {% endif %}
+
+    {% if page.date %}
+    <span>•</span>
+    <span>{{ page.date | date: "%d %B %Y" }}</span>
+    {% endif %}
+
+    {% if page.author %}
+    <span>•</span>
+    <span>{{ page.author }}</span>
+    {% endif %}
+
+  </div>
+
+  <!-- Article title -->
+  <h1 class="kb-paper-title">{{ page.title }}</h1>
+
+  <!-- Author info (if provided) -->
+  {% if page.author or page.affiliation %}
+  <div class="kb-author-info">
+    {% if page.author %}
+    <div class="kb-author-name">{{ page.author }}</div>
+    {% endif %}
+    {% if page.affiliation %}
+    <div class="kb-affiliation">{{ page.affiliation }}</div>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  <!-- Abstract (if provided) -->
+  {% if page.abstract %}
+  <div class="kb-abstract">
+    <div class="kb-abstract-title">{% if page.lang == 'en' %}Abstract{% else %}Özet{% endif %}</div>
+    <p class="kb-abstract-text">{{ page.abstract }}</p>
+  </div>
+  {% endif %}
+
+  <!-- Keywords (if provided) -->
+  {% if page.keywords %}
+  <div class="kb-keywords">
+    <strong>{% if page.lang == 'en' %}Keywords{% else %}Anahtar Kelimeler{% endif %}:</strong> {{ page.keywords }}
+  </div>
+  {% endif %}
+
+  {% if page.image %}
+  <div class="kb-paper-image">
+    <img src="{{ page.image | relative_url }}" alt="{{ page.title }}">
+  </div>
+  {% endif %}
+</header>
+
+{{ content }}
+
+
+<!-- Related Articles -->
+{% if page.topic %}
+{% assign related = site.posts | where: "topic", page.topic | where_exp: "post", "post.url != page.url" | limit: 3 %}
+{% if related.size > 0 %}
+<section class="kb-related-articles">
+  <h3 class="kb-related-title">{% if page.lang == 'en' %}Related Articles{% else %}İlgili Makaleler{% endif %}</h3>
+  <div class="kb-related-grid">
+    {% for post in related %}
+    <article class="kb-related-card">
+      <a href="{{ post.url | relative_url }}" class="kb-related-link">
+        <div class="kb-related-card-header">
+          {% if post.topic %}
+          {% assign t = site.data.topics.topics | where: "id", post.topic | first %}
+          {% if t %}
+          <span class="kb-related-topic">{{ t.name }}</span>
+          {% endif %}
+          {% endif %}
+          {% if post.date %}
+          <span class="kb-related-date">{{ post.date | date: "%b %Y" }}</span>
+          {% endif %}
+        </div>
+        <h4 class="kb-related-card-title">{{ post.title }}</h4>
+        {% if post.abstract %}
+        <p class="kb-related-abstract">{{ post.abstract | strip | truncate: 120 }}</p>
+        {% endif %}
+      </a>
+    </article>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+{% endif %}
+
+
+
+<script>// Reference Hover Previews
+  (function () {
+    const content = document.querySelector('.kb-paper-header').nextElementSibling;
+    if (!content) return;
+
+    // Find reference links [1], [2], etc.
+    const refLinks = content.querySelectorAll('a[href^="#"]');
+    const tooltip = document.createElement('div');
+    tooltip.className = 'kb-ref-tooltip';
+    document.body.appendChild(tooltip);
+
+    let hideTimeout;
+
+    refLinks.forEach(link => {
+      const text = link.textContent.trim();
+      if (/^\[\d+\]$/.test(text)) {
+        link.classList.add('kb-ref-link');
+
+        link.addEventListener('mouseenter', function (e) {
+          clearTimeout(hideTimeout);
+
+          const targetId = this.getAttribute('href').substring(1);
+          const target = document.getElementById(targetId);
+
+          if (target) {
+            tooltip.textContent = target.textContent;
+            tooltip.style.display = 'block';
+
+            const rect = this.getBoundingClientRect();
+            tooltip.style.left = rect.left + 'px';
+            tooltip.style.top = (rect.bottom + 5) + 'px';
+          }
+        });
+
+        link.addEventListener('mouseleave', function () {
+          hideTimeout = setTimeout(function () {
+            tooltip.style.display = 'none';
+          }, 200);
+        });
+      }
+    });
+
+    tooltip.addEventListener('mouseenter', function () {
+      clearTimeout(hideTimeout);
+    });
+
+    tooltip.addEventListener('mouseleave', function () {
+      tooltip.style.display = 'none';
+    });
+  })();
+</script>

@@ -1,0 +1,230 @@
+<nav class="flex-1 overflow-y-auto p-4 space-y-6">
+  <!-- Overview section -->
+  <div>
+    {% assign is_en = false %}
+    {% if page.lang == 'en' or page.url contains '-en' %}{% assign is_en = true %}{% endif %}
+    <h2 class="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-2">{% if is_en %}Overview{% else %}Genel
+      Bakış{% endif %}</h2>
+    <ul class="space-y-1">
+      <li>
+        <a href="{{ '/' | relative_url }}" class="flex items-center px-3 py-2 rounded-md text-sm font-medium
+                    {% if page.url == '/' or page.url == '/index.html' %}
+                      bg-blue-600 text-white
+                    {% else %}
+                      text-zinc-400 hover:bg-zinc-800 hover:text-white
+                    {% endif %}">
+          {% if page.url contains '-en' %}All Posts{% else %}Tüm Yazılar{% endif %}
+        </a>
+      </li>
+      <li>
+        <a href="{{ '/tweets/' | relative_url }}" class="flex items-center px-3 py-2 rounded-md text-sm font-medium
+                    {% if page.url == '/tweets/' %}
+                      bg-blue-600 text-white
+                    {% else %}
+                      text-zinc-400 hover:bg-zinc-800 hover:text-white
+                    {% endif %}">
+          {% if is_en %}Notes{% else %}Kısa Notlar{% endif %}
+        </a>
+      </li>
+    </ul>
+  </div>
+
+  {% assign topics = site.data.topics.topics %}
+  {% for topic in topics %}
+
+  {% assign page_lang = page.lang | default: "tr" %}
+  {% assign filtered_posts = "" | split: "," %}
+
+  {% assign posts_in_topic = site.posts | where: "topic", topic.id %}
+  {% for post in posts_in_topic %}
+  {% assign post_lang = post.lang | default: "tr" %}
+  {% if post_lang == page_lang %}
+  {% assign filtered_posts = filtered_posts | push: post %}
+  {% endif %}
+  {% endfor %}
+
+  {% if filtered_posts.size > 0 %}
+  <div class="kb-nav-category">
+    <button type="button" class="kb-nav-toggle" data-target="nav-{{ topic.id }}">
+      <span class="kb-nav-icon">{{ topic.icon }}</span>
+      <span class="kb-nav-name">{{ topic.name }}</span>
+      <span class="kb-nav-count">({{ filtered_posts.size }})</span>
+      <svg class="kb-nav-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none">
+        <path d="M4 2L8 6L4 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+          stroke-linejoin="round" />
+      </svg>
+    </button>
+    <ul id="nav-{{ topic.id }}" class="kb-nav-items" style="display: none;">
+      {% for post in filtered_posts %}
+      <li>
+        <a href="{{ post.url | relative_url }}"
+          class="kb-nav-link {% if page.url == post.url %}kb-nav-active{% endif %}">
+          {{ post.title }}
+        </a>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+  {% endfor %}
+</nav>
+
+<style>
+  .kb-nav-category {
+    margin-bottom: 0.5rem;
+  }
+
+  .kb-nav-toggle {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    background: transparent;
+    border: none;
+    border-radius: 0.375rem;
+    cursor: pointer;
+    text-align: left;
+    color: var(--kb-text-secondary, #a1a1aa);
+    transition: all 0.2s ease;
+  }
+
+  .kb-nav-toggle:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--kb-text-primary, #fff);
+  }
+
+  .kb-nav-toggle.active {
+    color: var(--kb-accent, #3b82f6);
+  }
+
+  .kb-nav-icon {
+    font-size: 0.875rem;
+    margin-right: 0.5rem;
+    width: 1.25rem;
+    text-align: center;
+  }
+
+  .kb-nav-name {
+    flex: 1;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .kb-nav-count {
+    font-size: 0.65rem;
+    opacity: 0.6;
+    margin-right: 0.5rem;
+  }
+
+  .kb-nav-arrow {
+    transition: transform 0.2s ease;
+    opacity: 0.5;
+  }
+
+  .kb-nav-toggle.active .kb-nav-arrow {
+    transform: rotate(90deg);
+    opacity: 1;
+  }
+
+  .kb-nav-items {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    padding-left: 1.75rem;
+    overflow: hidden;
+  }
+
+  .kb-nav-items li {
+    margin: 0.125rem 0;
+  }
+
+  .kb-nav-link {
+    display: block;
+    padding: 0.375rem 0.75rem;
+    font-size: 0.8125rem;
+    color: var(--kb-text-secondary, #a1a1aa);
+    text-decoration: none;
+    border-radius: 0.25rem;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .kb-nav-link:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--kb-text-primary, #fff);
+  }
+
+  .kb-nav-active {
+    background: var(--kb-accent, #3b82f6) !important;
+    color: #fff !important;
+  }
+
+  /* Light mode */
+  html:not(.dark) .kb-nav-toggle:hover {
+    background: rgba(0, 0, 0, 0.05);
+  }
+
+  html:not(.dark) .kb-nav-link:hover {
+    background: rgba(0, 0, 0, 0.05);
+  }
+</style>
+
+<script>
+  (function () {
+    'use strict';
+
+    function initNavToggle() {
+      var toggles = document.querySelectorAll('.kb-nav-toggle');
+      var currentPath = window.location.pathname;
+
+      toggles.forEach(function (toggle) {
+        var targetId = toggle.getAttribute('data-target');
+        var target = document.getElementById(targetId);
+
+        if (!target) return;
+
+        // Check if current page is in this category
+        var links = target.querySelectorAll('.kb-nav-link');
+        var isActiveCategory = false;
+
+        links.forEach(function (link) {
+          if (link.getAttribute('href') === currentPath ||
+            currentPath.indexOf(link.getAttribute('href')) === 0) {
+            isActiveCategory = true;
+          }
+        });
+
+        // Auto-expand if current page is in this category
+        if (isActiveCategory) {
+          toggle.classList.add('active');
+          target.style.display = 'block';
+        }
+
+        toggle.addEventListener('click', function (e) {
+          e.preventDefault();
+          e.stopPropagation();
+
+          var isOpen = target.style.display === 'block';
+
+          if (isOpen) {
+            target.style.display = 'none';
+            toggle.classList.remove('active');
+          } else {
+            target.style.display = 'block';
+            toggle.classList.add('active');
+          }
+        });
+      });
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initNavToggle);
+    } else {
+      initNavToggle();
+    }
+  })();
+</script>
