@@ -34,3 +34,44 @@ categories:
       - name: "Vulnerability Scanning"
         url: "/ai-security/healthgpt-en" # İngilizce
 
+  - name: "Web Güvenliği"
+    name_en: "Web Security"
+    url: "/web-sec"
+    items:
+      - name: "PortSwigger Academy"
+        url: "/web-sec/portswigger"
+        
+  - name: "PortSwigger Academy"
+    name_en: "PortSwigger Academy"
+    url: "/web-sec/portswigger"
+    items:
+          - name: "SQL Injection (SQLi)"
+            name_en: "SQL Injection (SQLi)"
+            url: "/web-sec/portswigger/sqli"
+            subitems:
+              - name: "Lab: SQL injection vulnerability in WHERE clause"
+                name_en: "Lab: SQL injection vulnerability in WHERE clause"
+                url: "/web-sec/portswigger/sqli/lab-01"
+              - name: "Lab: SQL injection login bypass"
+                name_en: "Lab: SQL injection login bypass"
+                url: "/web-sec/portswigger/sqli/lab-02"
+        
+          - name: "Cross-Site Scripting (XSS)"
+            name_en: "Cross-Site Scripting (XSS)"
+            url: "/web-sec/portswigger/xss"
+            subitems:
+              - name: "Lab: Reflected XSS into HTML context"
+                name_en: "Lab: Reflected XSS into HTML context"
+                url: "/web-sec/portswigger/xss/lab-01"
+              - name: "Lab: Stored XSS into anchor href attribute"
+                name_en: "Lab: Stored XSS into anchor href attribute"
+                url: "/web-sec/portswigger/xss/lab-03"
+
+          - name: "Server-Side Request Forgery (SSRF)"
+            name_en: "Server-Side Request Forgery (SSRF)"
+            url: "/web-sec/portswigger/ssrf"
+            subitems:
+              - name: "Lab: Basic SSRF against local server"
+                name_en: "Lab: Basic SSRF against local server"
+                url: "/web-sec/portswigger/ssrf/lab-01"
+
