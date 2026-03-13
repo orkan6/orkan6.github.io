@@ -3,7 +3,7 @@ categories:
     items:
       - name: "Örnek Alt Kategori"
         url: "#"
-        subitems:
+        items:
           - name: "Mock Deneme Yazısı"
             url: "/mock-topic/mock-post"
           - name: "İlk Blog Yazısı"
@@ -48,7 +48,7 @@ categories:
           - name: "SQL Injection (SQLi)"
             name_en: "SQL Injection (SQLi)"
             url: "/web-sec/portswigger/sqli"
-            subitems:
+            items:
               - name: "Lab: SQL injection vulnerability in WHERE clause"
                 name_en: "Lab: SQL injection vulnerability in WHERE clause"
                 url: "/web-sec/portswigger/sqli/lab-01"
@@ -59,7 +59,7 @@ categories:
           - name: "Cross-Site Scripting (XSS)"
             name_en: "Cross-Site Scripting (XSS)"
             url: "/web-sec/portswigger/xss"
-            subitems:
+            items:
               - name: "Lab: Reflected XSS into HTML context"
                 name_en: "Lab: Reflected XSS into HTML context"
                 url: "/web-sec/portswigger/xss/lab-01"
@@ -70,7 +70,7 @@ categories:
           - name: "Server-Side Request Forgery (SSRF)"
             name_en: "Server-Side Request Forgery (SSRF)"
             url: "/web-sec/portswigger/ssrf"
-            subitems:
+            items:
               - name: "Lab: Basic SSRF against local server"
                 name_en: "Lab: Basic SSRF against local server"
                 url: "/web-sec/portswigger/ssrf/lab-01"
