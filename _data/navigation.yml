@@ -3,7 +3,7 @@ categories:
     items:
       - name: "Örnek Alt Kategori"
         url: "#"
-        subitems:
+        items:
           - name: "Mock Deneme Yazısı"
             url: "/mock-topic/mock-post"
           - name: "İlk Blog Yazısı"
